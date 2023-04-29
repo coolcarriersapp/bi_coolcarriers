@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { AppContext } from "./libs/contextLib";
-import "./App.css";
-
+// === Styles ===
+import "../src/assets/sass/app.scss"
+// === Routes ===
 import ManagementRoutes from "./Routes/Routes";
 
 function App() {

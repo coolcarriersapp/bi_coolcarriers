@@ -6,8 +6,8 @@ function Home() {
   let navigate = useNavigate();
 
   return (
-    <div>
-      <h1>Home</h1>
+    <div className="Home">
+      <h1 className="Home__title">Home</h1>
       <button onClick={() => navigate("test")}>go to test</button>
       <button onClick={() => setIsAuthenticated(false)}>logout</button>
     </div>
