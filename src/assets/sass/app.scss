@@ -1,8 +1,15 @@
+// Abstracts
+@import "abstracts/variables";
+
 //Base
 @import "base/general";
 
 //Components
-// @import "components/*";
+@import "components/NavBar.scss";
+@import "components/MenuBar.scss";
+@import "components/Profile.scss";
+@import "components/CCTable.scss";
 
 // containers
 @import "containers/Home.scss";
+@import "containers/Dashboard.scss";

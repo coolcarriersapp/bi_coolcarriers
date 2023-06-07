@@ -14,5 +14,19 @@
 // * {
 // }
 
-// body {
-// }
+body {
+    background-color: $body-color;
+}
+
+.card {
+    background: $just-white;
+    box-shadow: 0px 4px 21px rgba(0, 0, 0, 0.1);
+    border-radius: $general-border-radius;
+}
+
+.row {
+    display: flex;
+}
+.align-items-center {
+    align-items: center;
+}

@@ -1,7 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import "./index.css";
+
+// === Styles ===
+import "./index.css";    
+//core
+import "primereact/resources/primereact.min.css";   
+//theme
+import "primereact/resources/themes/lara-light-indigo/theme.css";                                    
+        
 
 import { BrowserRouter } from "react-router-dom";
 

@@ -1,0 +1,35 @@
+.NavBar{
+
+    &__openBar {
+        background: linear-gradient(90deg, #2C9FDA 0.91%, #3154A1 77.81%) !important;
+        width: 280px !important;
+        &-header{
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-around;
+
+            font-family: 'Roboto';
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 23px;
+            color: #FFFFFF;
+        }
+    }
+    &__closeBar {
+        background: linear-gradient(90deg, #2C9FDA 0.91%, #3154A1 77.81%) !important;
+        width: 80px !important;
+        transition: width 0.5s;
+        &-header{
+            width: 100%;
+            text-align: center;
+            img {
+                cursor: pointer;
+            }
+        }
+        &:hover{
+            width: 100px !important;
+            transition: width 0.5s;
+        }
+    }
+}

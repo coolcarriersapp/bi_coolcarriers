@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { AppContext } from "./libs/contextLib";
 // === Styles ===
-import "../src/assets/sass/app.scss"
+import "../src/assets/sass/app.scss";
+
 // === Routes ===
 import ManagementRoutes from "./Routes/Routes";
 
 function App() {
   const [isAuthenticating, setIsAuthenticating] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [userName, setUserName] = useState("");
+  const [userLastName, setUserLastName] = useState("");
+  const [userImage, setUserImage] = useState("");
 
   useEffect(() => {
     setIsAuthenticating(false);
@@ -19,6 +23,12 @@ function App() {
         value={{
           isAuthenticated,
           setIsAuthenticated,
+          userName,
+          setUserName,
+          userLastName,
+          setUserLastName,
+          userImage,
+          setUserImage,
         }}
       >
         <ManagementRoutes />

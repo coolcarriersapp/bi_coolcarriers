@@ -1,0 +1,13 @@
+.Dashboard{
+    width: calc(100vw - 80px);
+    height: 100vh;
+    margin-left: 80px;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    &__table-container {
+        max-height: 80vh;
+        max-width: 90vw;
+        overflow-y: auto;        
+    }
+}

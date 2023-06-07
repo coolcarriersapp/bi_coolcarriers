@@ -1,0 +1,25 @@
+
+// === colors ===
+
+$body-color: #f5f5f5;
+
+$primary: #4553e2;
+$secondary: #4a4a4a;
+$danger: #ea1f63;
+$success: #06c10d;
+$just-white: #ffffff;
+$primary-disabled-color: #c9d5e9;
+
+// === border-radius ===
+
+$general-border-radius: 5px;
+
+$grid-breakpoints: (
+  xs: 0,
+  sm: 576px,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
+  xxxl: 1600px,
+);
