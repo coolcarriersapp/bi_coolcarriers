@@ -6,16 +6,16 @@ import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 import { Button } from "primereact/button";
 
-export default function BasicFilterDemo({ data }) {
+export default function BasicFilterDemo({ data }: any) {
   const [filters, setFilters] = useState<DataTableFilterMeta>({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [globalFilterValue, setGlobalFilterValue] = useState<string>("");
-  const [columns, setColumns] = useState([]);
+  const [columns, setColumns] = useState<any[]>([]);
   const [selectedColumns, setSelectedColumns] = useState(null);
-  const [totalColumns, setTotalColumns] = useState([]);
-  const [dataTable, setDataTable] = useState([]);
+  const [totalColumns, setTotalColumns] = useState<any[]>([]);
+  const [dataTable, setDataTable] = useState<any[]>([]);
 
   const dt = useRef<DataTable>(null);
 
@@ -34,7 +34,7 @@ export default function BasicFilterDemo({ data }) {
 
   useEffect(() => {
     if (selectedColumns) {
-      let selectedColumns_ = selectedColumns.map((el) => el.name);
+      let selectedColumns_ = selectedColumns.map((el: any) => el.name);
       let dataTable_ = [...data.data.slice(0, 1000)];
       for (let i = 0; i < dataTable_.length; i++) {
         let obj = { ...dataTable_[i] };
