@@ -4,7 +4,7 @@ import { DataTable, DataTableFilterMeta } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
-import { Button } from 'primereact/button';
+import { Button } from "primereact/button";
 
 export default function BasicFilterDemo({ data }) {
   const [filters, setFilters] = useState<DataTableFilterMeta>({
@@ -67,31 +67,27 @@ export default function BasicFilterDemo({ data }) {
     setGlobalFilterValue(value);
   };
 
-  const exportCSV = (selectionOnly) => {
-    dt.current.exportCSV({ selectionOnly });
-  };
-
   const exportPdf = () => {
+    let head = selectedColumns.map((el) => el.name);
+    let body = dataTable.map((el) => Object.values(el));
     import("jspdf").then((jsPDF) => {
       import("jspdf-autotable").then(() => {
         const doc = new jsPDF.default(0, 0);
-
-        doc.autoTable(exportColumns, products);
-        doc.save("products.pdf");
+        doc.autoTable(head, body);
+        doc.save("coolcarriers_data.pdf");
       });
     });
   };
 
   const exportExcel = () => {
     import("xlsx").then((xlsx) => {
-      const worksheet = xlsx.utils.json_to_sheet(products);
+      const worksheet = xlsx.utils.json_to_sheet(dataTable);
       const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
       const excelBuffer = xlsx.write(workbook, {
         bookType: "xlsx",
         type: "array",
       });
-
-      saveAsExcelFile(excelBuffer, "products");
+      saveAsExcelFile(excelBuffer, "coolcarriers_data");
     });
   };
 
@@ -124,31 +120,24 @@ export default function BasicFilterDemo({ data }) {
             placeholder="Keyword Search"
           />
         </span>
-        {/* <div className="flex align-items-center justify-content-end gap-2">
-          <Button
-            type="button"
-            icon="pi pi-file"
-            rounded
-            onClick={() => exportCSV(false)}
-            data-pr-tooltip="CSV"
-          />
-          <Button
-            type="button"
-            icon="pi pi-file-excel"
-            severity="success"
-            rounded
-            onClick={exportExcel}
-            data-pr-tooltip="XLS"
-          />
-          <Button
-            type="button"
-            icon="pi pi-file-pdf"
-            severity="warning"
-            rounded
-            onClick={exportPdf}
-            data-pr-tooltip="PDF"
-          />
-        </div> */}
+        <Button
+          style={{ marginLeft: "10px" }}
+          type="button"
+          icon="pi pi-file-excel"
+          severity="success"
+          rounded
+          onClick={exportExcel}
+          data-pr-tooltip="XLS"
+        />
+        <Button
+          style={{ marginLeft: "10px" }}
+          type="button"
+          icon="pi pi-file-pdf"
+          severity="warning"
+          rounded
+          onClick={exportPdf}
+          data-pr-tooltip="PDF"
+        />
       </div>
     );
   };
@@ -156,7 +145,7 @@ export default function BasicFilterDemo({ data }) {
   const header = renderHeader();
 
   return (
-    <div className="card">
+    <div>
       <div className="CCTable__columns-selector">
         <MultiSelect
           value={selectedColumns}

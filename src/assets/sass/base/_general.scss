@@ -11,11 +11,17 @@
 //   font-weight: normal;
 // }
 
-// * {
-// }
+* {
+  scrollbar-color: $primary $color-grey;
+  scrollbar-width: thin;
+  box-sizing: border-box;
+}
 
 body {
-    background-color: $body-color;
+  background-color: $body-color;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: "OpenSans" !important;
 }
 
 .card {
@@ -30,3 +36,4 @@ body {
 .align-items-center {
     align-items: center;
 }
+

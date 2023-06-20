@@ -1,13 +1,25 @@
 .Dashboard{
     width: calc(100vw - 80px);
-    height: 100vh;
+    // height: 100vh;
     margin-left: 80px;
     align-items: center;
     justify-content: center;
     display: flex;
+    &__content {
+        width: 100%;
+        text-align: center;
+    }
     &__table-container {
+        margin: auto;
+        margin-top: 20vh;
         max-height: 80vh;
         max-width: 90vw;
         overflow-y: auto;        
+    }
+    &__chart-container {
+        display: inline-flex;
+        margin: auto;
+        margin-top: 5vh;
+        margin-bottom: 10vh;
     }
 }
