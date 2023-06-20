@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FilterMatchMode } from "primereact/api";
 import { DataTable, DataTableFilterMeta } from "primereact/datatable";
+import { jsPDF } from "jspdf";
+import autoTable, { CellInput, RowInput } from "jspdf-autotable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
@@ -12,22 +14,21 @@ export default function BasicFilterDemo({ data }: any) {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [globalFilterValue, setGlobalFilterValue] = useState<string>("");
-  const [columns, setColumns] = useState<any[]>([]);
-  const [selectedColumns, setSelectedColumns] = useState(null);
+  const [columns, setColumns] = useState<string[]>([]);
+  const [selectedColumns, setSelectedColumns] = useState<any>(null);
   const [totalColumns, setTotalColumns] = useState<any[]>([]);
   const [dataTable, setDataTable] = useState<any[]>([]);
 
-  const dt = useRef<DataTable>(null);
+  const dt = useRef(null);
 
   useEffect(() => {
     if (data !== null) {
       setDataTable(data.data.slice(0, 1000));
-      let columns_ = data.headers.map(function (el: String) {
+      let columns_ = data.headers.map(function (el: string) {
         return { name: el, code: el };
       });
       setTotalColumns(columns_);
       setSelectedColumns(columns_);
-      // setColumns(columns_);
       setLoading(false);
     }
   }, [data]);
@@ -38,7 +39,7 @@ export default function BasicFilterDemo({ data }: any) {
       let dataTable_ = [...data.data.slice(0, 1000)];
       for (let i = 0; i < dataTable_.length; i++) {
         let obj = { ...dataTable_[i] };
-        Object.keys(obj).forEach(function (key: String) {
+        Object.keys(obj).forEach(function (key: string) {
           if (!selectedColumns_.includes(key)) {
             delete obj[key];
           }
@@ -47,7 +48,6 @@ export default function BasicFilterDemo({ data }: any) {
       }
       setDataTable(dataTable_);
       setColumns(selectedColumns_);
-      // Update filters
       let filters_ = { ...filters };
       for (let i = 0; i < selectedColumns_.length; i++) {
         filters_[selectedColumns_[i]] = {
@@ -62,21 +62,21 @@ export default function BasicFilterDemo({ data }: any) {
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     let _filters = { ...filters };
-    _filters["global"].value = value;
+    if ("value" in _filters["global"]) {
+      _filters["global"].value = value;
+    }
     setFilters(_filters);
     setGlobalFilterValue(value);
   };
 
   const exportPdf = () => {
-    let head = selectedColumns.map((el) => el.name);
-    let body = dataTable.map((el) => Object.values(el));
-    import("jspdf").then((jsPDF) => {
-      import("jspdf-autotable").then(() => {
-        const doc = new jsPDF.default(0, 0);
-        doc.autoTable(head, body);
-        doc.save("coolcarriers_data.pdf");
-      });
-    });
+    let head = selectedColumns.map((el: any) => el.name);
+    let body: RowInput[] = dataTable.map(
+      (el) => Object.values(el) as CellInput[]
+    );
+    const doc = new jsPDF();
+    autoTable(doc, { head, body });
+    doc.save("coolcarriers_data.pdf");
   };
 
   const exportExcel = () => {
@@ -91,7 +91,7 @@ export default function BasicFilterDemo({ data }: any) {
     });
   };
 
-  const saveAsExcelFile = (buffer, fileName) => {
+  const saveAsExcelFile = (buffer: any, fileName: string) => {
     import("file-saver").then((module) => {
       if (module && module.default) {
         let EXCEL_TYPE =
@@ -163,7 +163,6 @@ export default function BasicFilterDemo({ data }: any) {
       <DataTable
         ref={dt}
         value={dataTable}
-        // value={customers}
         size="small"
         paginator
         rows={10}

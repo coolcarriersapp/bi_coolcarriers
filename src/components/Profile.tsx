@@ -1,6 +1,5 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { useAppContext } from "../libs/contextLib";
-import { useNavigate } from "react-router-dom";
 
 import "primeicons/primeicons.css";
 
@@ -13,7 +12,7 @@ import isoLogo from "../assets/images/iso_logo_color.svg";
 
 function Profile() {
   const { userName, userLastName, userImage } = useAppContext();
-  const op = useRef(null);
+  const op = useRef<OverlayPanel>(null);
 
   return (
     <div className="Profile">
@@ -26,7 +25,7 @@ function Profile() {
         <img src={userImage || isoLogo}></img>
       </div>
       <div className="Profile__button">
-        <button onClick={(e) => op.current.toggle(e)}>
+        <button onClick={(e) => op.current?.toggle(e)}>
           <img src={arrow}></img>
         </button>
         <OverlayPanel ref={op}>

@@ -1,15 +1,10 @@
 import { useState } from "react";
-import { useAppContext } from "../libs/contextLib";
-import { useNavigate } from "react-router-dom";
 import { Sidebar } from "primereact/sidebar";
 
 // === Images ===
 import isoLogo from "../assets/images/iso_logo.svg";
 
 function NavBar() {
-  const { setIsAuthenticated } = useAppContext();
-  let navigate = useNavigate();
-
   const [visible, setVisible] = useState(false);
 
   return (

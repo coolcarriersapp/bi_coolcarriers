@@ -1,7 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // === Containers ===
-import Home from "../containers/Home";
 import Dashboard from "../containers/Dashboard";
 import Test from "../containers/Test";
 

@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
 import {
   ComposedChart,
-  LineChart,
   Line,
   Bar,
   XAxis,
@@ -17,8 +15,16 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function CCChart({ data, xkey, ykey, type }) {
-  const CustomTooltip = ({ active, payload, label }) => {
+interface CCChartProps {
+  data: any[];
+  xkey: string;
+  ykey: string;
+  type: string;
+}
+
+
+export default function CCChart({ data, xkey, ykey, type }: CCChartProps) {
+  const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div
@@ -31,6 +37,7 @@ export default function CCChart({ data, xkey, ykey, type }) {
         </div>
       );
     }
+    return null;
   };
 
   return (

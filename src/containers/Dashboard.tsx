@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import { useAppContext } from "../libs/contextLib";
-import { useNavigate } from "react-router-dom";
 import Papa from "papaparse";
 import axios from "axios";
 
@@ -9,15 +7,27 @@ import CCTable from "../components/CCTable/CCTable";
 import CCChart from "../components/CCChart/CCChart";
 
 function Dashboard() {
-  const { setIsAuthenticated } = useAppContext();
-  let navigate = useNavigate();
-
   const [exampleData, setExampleData] = useState(null);
-  const [chartData1, setChartData1] = useState({});
-  const [chartData2, setChartData2] = useState({});
-  const [chartData3, setChartData3] = useState({});
+  const [chartData1, setChartData1] = useState({
+    data: [],
+    xkey: "",
+    ykey: "",
+    name: "",
+  });
+  const [chartData2, setChartData2] = useState({
+    data: [],
+    xkey: "",
+    ykey: "",
+    name: "",
+  });
+  const [chartData3, setChartData3] = useState({
+    data: [],
+    xkey: "",
+    ykey: "",
+    name: "",
+  });
 
-  const convertCSVtoJSON = (csv) => {
+  const convertCSVtoJSON = (csv: any) => {
     // csv = csv.split("NaN").join(0);
     csv = Papa.parse(csv).data;
     let data = [];
@@ -60,8 +70,8 @@ function Dashboard() {
       setExampleData(response);
       let chartData1_ = response.data.slice(0, 1000);
       chartData1_ = chartData1_
-        .filter((el) => el.specialty === "ARANDANOS")
-        .map(function (el) {
+        .filter((el: any) => el.specialty === "ARANDANOS")
+        .map(function (el: any) {
           return { weight: parseFloat(el.weight), arrive_date: el.arrive_date };
         });
       setChartData1({
@@ -72,9 +82,11 @@ function Dashboard() {
       });
       let chartData2_ = response.data.slice(0, 1000);
       let chartData2Aux = response.data.slice(0, 1000);
-      chartData2_ = [...new Set(chartData2_.map((el) => el.exporter))];
-      chartData2_ = chartData2_.map(function (el) {
-        let number = chartData2Aux.filter((el_) => el_.exporter === el).length;
+      chartData2_ = [...new Set(chartData2_.map((el: any) => el.exporter))];
+      chartData2_ = chartData2_.map(function (el: any) {
+        let number = chartData2Aux.filter(
+          (el_: any) => el_.exporter === el
+        ).length;
         return {
           exporter: el,
           shipments: number,
@@ -89,22 +101,26 @@ function Dashboard() {
 
       let chartData3_ = response.data.slice(0, 1000);
       let chartData3Aux = response.data.slice(0, 1000);
-      chartData3_ = [...new Set(chartData3_.map((el) => el.port_of_shipment))];
-      chartData3_ = chartData3_.map(function (el) {
-        let number = chartData3Aux.filter((el_) => el_.port_of_shipment === el).length;
+      chartData3_ = [
+        ...new Set(chartData3_.map((el: any) => el.port_of_shipment)),
+      ];
+      chartData3_ = chartData3_.map(function (el: any) {
+        let number = chartData3Aux.filter(
+          (el_: any) => el_.port_of_shipment === el
+        ).length;
         return {
           port_of_shipment: el,
           shipments: number,
         };
       });
-      console.log('test',chartData3_)
+      console.log("test", chartData3_);
       setChartData3({
         data: chartData3_,
         xkey: "port_of_shipment",
         ykey: "shipments",
         name: "Shipments by Ports",
       });
-      console.log(chartData3_)
+      console.log(chartData3_);
     } catch (e) {
       console.log(e);
     }
