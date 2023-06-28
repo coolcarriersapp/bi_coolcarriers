@@ -1,176 +1,145 @@
 import { useEffect, useState } from "react";
-import Papa from "papaparse";
-import axios from "axios";
+import { useLazyQuery, gql } from "@apollo/client";
+import { Row } from "react-bootstrap";
 
 // === Components ===
 import CCTable from "../components/CCTable/CCTable";
-import CCChart from "../components/CCChart/CCChart";
+import { FilterMatchMode } from "primereact/api";
 
 function Dashboard() {
-  const [exampleData, setExampleData] = useState(null);
-  const [chartData1, setChartData1] = useState({
-    data: [],
-    xkey: "",
-    ykey: "",
-    name: "",
-  });
-  const [chartData2, setChartData2] = useState({
-    data: [],
-    xkey: "",
-    ykey: "",
-    name: "",
-  });
-  const [chartData3, setChartData3] = useState({
-    data: [],
-    xkey: "",
-    ykey: "",
-    name: "",
-  });
-
-  const convertCSVtoJSON = (csv: any) => {
-    // csv = csv.split("NaN").join(0);
-    csv = Papa.parse(csv).data;
-    let data = [];
-    for (let i = 1; i < csv.length; i++) {
-      data.push({
-        id: i,
-        specialty: csv[i][0],
-        variaty: csv[i][1],
-        boxes: csv[i][2],
-        weight: csv[i][3],
-        exporter: csv[i][4],
-        region_destiny: csv[i][5],
-        port_destiny: csv[i][6],
-        country_destiny: csv[i][7],
-        receiver: csv[i][8],
-        ship: csv[i][9],
-        ship_type: csv[i][10],
-        week_number: csv[i][11],
-        date: csv[i][12],
-        port_of_shipment: csv[i][13],
-        arrive_date: csv[i][14],
-        origin_code: csv[i][15],
-        condition: csv[i][16],
-      });
+  const [dataComponents, setDataComponents] = useState<any>({});
+  const [executeQuery] = useLazyQuery(gql`
+    query list_shipments {
+      list_shipments(limit: 1) {
+        ships_id
+      }
     }
-    return { headers: csv[0], data: data };
-  };
+  `);
 
-  const getData = async () => {
-    try {
-      let response = await axios
-        .get(
-          "https://coolcarriers-public-storage.s3.amazonaws.com/frutadia.csv"
-        )
-        .then((res) => {
-          return res.data;
-        })
-        .catch((err) => console.log(err));
-      response = convertCSVtoJSON(response);
-      setExampleData(response);
-      let chartData1_ = response.data.slice(0, 1000);
-      chartData1_ = chartData1_
-        .filter((el: any) => el.specialty === "ARANDANOS")
-        .map(function (el: any) {
-          return { weight: parseFloat(el.weight), arrive_date: el.arrive_date };
-        });
-      setChartData1({
-        data: chartData1_,
-        xkey: "arrive_date",
-        ykey: "weight",
-        name: "Arandanos (Arrive date vs Weight)",
-      });
-      let chartData2_ = response.data.slice(0, 1000);
-      let chartData2Aux = response.data.slice(0, 1000);
-      chartData2_ = [...new Set(chartData2_.map((el: any) => el.exporter))];
-      chartData2_ = chartData2_.map(function (el: any) {
-        let number = chartData2Aux.filter(
-          (el_: any) => el_.exporter === el
-        ).length;
-        return {
-          exporter: el,
-          shipments: number,
-        };
-      });
-      setChartData2({
-        data: chartData2_,
-        xkey: "exporter",
-        ykey: "shipments",
-        name: "Shipments by Exporter",
-      });
-
-      let chartData3_ = response.data.slice(0, 1000);
-      let chartData3Aux = response.data.slice(0, 1000);
-      chartData3_ = [
-        ...new Set(chartData3_.map((el: any) => el.port_of_shipment)),
-      ];
-      chartData3_ = chartData3_.map(function (el: any) {
-        let number = chartData3Aux.filter(
-          (el_: any) => el_.port_of_shipment === el
-        ).length;
-        return {
-          port_of_shipment: el,
-          shipments: number,
-        };
-      });
-      console.log("test", chartData3_);
-      setChartData3({
-        data: chartData3_,
-        xkey: "port_of_shipment",
-        ykey: "shipments",
-        name: "Shipments by Ports",
-      });
-      console.log(chartData3_);
-    } catch (e) {
-      console.log(e);
-    }
+  const defaultComponents = {
+    "components-table-1": {
+      id: "components-table-1",
+      table_id: "shipments_id",
+      columns: [
+        "shipments_id",
+        "asoex_documents_id",
+        "species_name",
+        "varieties_name",
+        "boxes",
+        "weight",
+        "exporters_id",
+        "region",
+        "destination_region",
+        "destination_port",
+        "destination_country",
+        "receivers_id",
+        "ships_id",
+        "week_number",
+        "date",
+        "port_of_shipment",
+        "arrival_date",
+        "region_of_origin_code",
+        "shipment_condition",
+        "created_at",
+        "updated_at",
+      ],
+      data: null,
+      query_name: "list_shipments",
+      query: `
+      query list_shipments($limit: Int, $offset: Int, $order: JSON, $columns_like: JSON, $filters: JSON){
+        list_shipments(limit: $limit, offset: $offset, order: $order, columns_like: $columns_like){
+          shipments_id,
+          asoex_documents_id,
+          species_name,
+          varieties_name,
+          boxes,
+          weight,
+          exporters_id,
+          region,
+          destination_region,
+          destination_port,
+          destination_country,
+          receivers_id,
+          ships_id,
+          week_number,
+          date,
+          port_of_shipment,
+          arrival_date,
+          region_of_origin_code,
+          shipment_condition,
+          created_at,
+          updated_at,
+        }
+        count_rows(table_name: "shipments", filters: $filters)
+      }
+      `,
+      variables: {
+        limit: 10,
+        offset: 0,
+        order: "[{'column':'shipments_id','order':'ASC'}]",
+        columns_like: null,
+        filters: null,
+      },
+      filters: {
+        global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+      },
+    },
   };
 
   useEffect(() => {
     const pageInit = () => {
-      if (!exampleData) {
-        getData();
+      if (Object.keys(dataComponents).length === 0) {
+        setDataComponents(defaultComponents);
       }
     };
     pageInit();
   }, []);
 
+  const requestUpdate = async (
+    component: string,
+    query: string,
+    variables: any,
+    filters: any
+  ) => {
+    console.log("Executing query...");
+    let gql_query = gql(query);
+    let response = await executeQuery({
+      variables: variables,
+      query: gql_query,
+    });
+    let component_aux = { ...dataComponents[component] };
+    component_aux["data"] = response.data;
+    component_aux["variables"] = variables;
+    component_aux["filters"] = filters;
+    setDataComponents({ ...dataComponents, [component]: component_aux });
+  };
+
   return (
     <div className="Dashboard">
-      <div className="Dashboard__content">
-        <div className="Dashboard__table-container card">
-          <CCTable data={exampleData}></CCTable>
-        </div>
-        <div className="Dashboard__chart-container">
-          <div className="card" style={{ marginRight: "20px", padding: "1%" }}>
-            <label style={{ color: "#000000" }}>{chartData1.name}</label>
-            <CCChart
-              data={chartData1.data}
-              xkey={chartData1.xkey}
-              ykey={chartData1.ykey}
-              type="line"
-            ></CCChart>
-          </div>
-          <div className="card" style={{ marginRight: "20px", padding: "1%" }}>
-            <label style={{ color: "#000000" }}>{chartData2.name}</label>
-            <CCChart
-              data={chartData2.data}
-              xkey={chartData2.xkey}
-              ykey={chartData2.ykey}
-              type="bar"
-            ></CCChart>
-          </div>
-          <div className="card" style={{ marginRight: "20px", padding: "1%" }}>
-            <label style={{ color: "#000000" }}>{chartData3.name}</label>
-            <CCChart
-              data={chartData3.data}
-              xkey={chartData3.xkey}
-              ykey={chartData3.ykey}
-              type="radar"
-            ></CCChart>
-          </div>
-        </div>
-      </div>
+      <Row
+        className="Dashboard__components-grid justify-content-center"
+        key="Dashboard__components-grid"
+      >
+        {/* Render Components */}
+        {Object.keys(dataComponents).map(function (component) {
+          if (component.includes("table")) {
+            return (
+              <div
+                className="Dashboard__component-container"
+                key={"Dashboard__component-container" + "-" + component}
+              >
+                <CCTable
+                  key={component}
+                  data={dataComponents[component]}
+                  requestUpdate={requestUpdate}
+                ></CCTable>
+              </div>
+            );
+          } else {
+            return null;
+          }
+        })}
+      </Row>
     </div>
   );
 }
