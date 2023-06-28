@@ -21,19 +21,10 @@ body {
   background-color: $body-color;
   overflow-x: hidden;
   overflow-y: auto;
-  font-family: "OpenSans" !important;
+  font-family: "Roboto";
 }
 
-.card {
-    background: $just-white;
-    box-shadow: 0px 4px 21px rgba(0, 0, 0, 0.1);
-    border-radius: $general-border-radius;
-}
-
-.row {
-    display: flex;
-}
-.align-items-center {
-    align-items: center;
+.text-align-center {
+    text-align: center;
 }
 
