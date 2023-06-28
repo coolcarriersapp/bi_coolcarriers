@@ -1,3 +1,4 @@
+import { Auth } from "aws-amplify";
 import { useRef } from "react";
 import { useAppContext } from "../libs/contextLib";
 
@@ -11,8 +12,16 @@ import arrow from "../assets/images/arrow.svg";
 import isoLogo from "../assets/images/iso_logo_color.svg";
 
 function Profile() {
-  const { userName, userLastName, userImage } = useAppContext();
+  const { setIsAuthenticated, userName, userLastName, userImage } =
+    useAppContext();
   const op = useRef<OverlayPanel>(null);
+
+  const handleLogout = async () => {
+    await Auth.signOut();
+    localStorage.clear();
+    setIsAuthenticated(false);
+    document.location.href = "/";
+  };
 
   return (
     <div className="Profile">
@@ -31,7 +40,9 @@ function Profile() {
         <OverlayPanel ref={op}>
           <div className="Profile__overlay">
             <i className="pi pi-sign-out Profile__overlay-icon"></i>
-            <span className="Profile__overlay-label">Logout</span>
+            <span className="Profile__overlay-label" onClick={handleLogout}>
+              Logout
+            </span>
           </div>
         </OverlayPanel>
       </div>
