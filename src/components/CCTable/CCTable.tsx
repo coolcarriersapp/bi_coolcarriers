@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FilterMatchMode } from "primereact/api";
-import { DataTable, DataTableFilterMeta } from "primereact/datatable";
+import { DataTable } from "primereact/datatable";
 import { jsPDF } from "jspdf";
 import autoTable, { CellInput, RowInput } from "jspdf-autotable";
 import { Column } from "primereact/column";
@@ -8,65 +8,135 @@ import { InputText } from "primereact/inputtext";
 import { MultiSelect } from "primereact/multiselect";
 import { Button } from "primereact/button";
 
-export default function BasicFilterDemo({ data }: any) {
-  const [filters, setFilters] = useState<DataTableFilterMeta>({
-    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+var timerId: any = null;
+var globalTimerId: any = null;
+var waitingTime = 1000;
+
+export default function BasicFilterDemo({ data, requestUpdate }: any) {
+  const [dataTable, setDataTable] = useState<any[]>([]);
+  const [totalRecords, setTotalRecords] = useState(0);
+  interface Filters {
+    global: {
+      value: string | null;
+      matchMode: FilterMatchMode;
+    };
+    [key: string]: {
+      value: string | null;
+      matchMode: FilterMatchMode;
+    };
+  }
+  const [lazyState, setlazyState] = useState<{
+    first: number;
+    rows: number;
+    page: number;
+    sortField: string | null;
+    sortOrder: number | null;
+    filters: Filters;
+  }>({
+    first: 0,
+    rows: 0,
+    page: 1,
+    sortField: null,
+    sortOrder: null,
+    filters: {
+      global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    },
   });
+  const [idTable, setIdTable] = useState("");
+  const [columns, setColumns] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [globalFilterValue, setGlobalFilterValue] = useState<string>("");
-  const [columns, setColumns] = useState<string[]>([]);
+  const [globalFilterBlock, setGlobalFilterBlock] = useState<boolean>(false);
   const [selectedColumns, setSelectedColumns] = useState<any>(null);
   const [totalColumns, setTotalColumns] = useState<any[]>([]);
-  const [dataTable, setDataTable] = useState<any[]>([]);
 
   const dt = useRef(null);
 
   useEffect(() => {
     if (data !== null) {
-      setDataTable(data.data.slice(0, 1000));
-      let columns_ = data.headers.map(function (el: string) {
-        return { name: el, code: el };
-      });
-      setTotalColumns(columns_);
-      setSelectedColumns(columns_);
-      setLoading(false);
+      if (data["data"] === null) {
+        requestUpdate(
+          data["id"],
+          data["query"],
+          data["variables"],
+          data["filters"]
+        );
+      } else {
+        let full_data = data.data[data.query_name];
+        let count_rows = data.data.count_rows;
+        setDataTable(full_data);
+        setIdTable(data.table_id);
+        let columns_ = data.columns.map(function (el: string) {
+          return { name: el, code: el };
+        });
+        if (selectedColumns === null) {
+          setSelectedColumns(columns_);
+          setColumns(data.columns);
+        } else {
+          let selectedColumns_ = selectedColumns.map((el: any) => el.name);
+          setColumns(selectedColumns_);
+        }
+        setTotalColumns(columns_);
+        setTotalRecords(count_rows);
+        let filters = { ...lazyState.filters };
+        for (let i = 0; i < data.columns.length; i++) {
+          if (globalFilterValue) {
+            filters[data.columns[i]] = {
+              value: globalFilterValue,
+              matchMode: FilterMatchMode.CONTAINS,
+            };
+          } else {
+            if (globalFilterBlock) {
+              filters[data.columns[i]] = {
+                value: null,
+                matchMode: FilterMatchMode.CONTAINS,
+              };
+            } else {
+              if (!Object.keys(filters).includes(data.columns[i])) {
+                filters[data.columns[i]] = {
+                  value: null,
+                  matchMode: FilterMatchMode.CONTAINS,
+                };
+              }
+            }
+          }
+        }
+        if (globalFilterValue && !globalFilterBlock) {
+          setGlobalFilterBlock(true);
+        } else {
+          setGlobalFilterBlock(false);
+        }
+        setlazyState({
+          ...lazyState,
+          rows: data.variables.limit,
+          filters: filters,
+        });
+        setLoading(false);
+      }
     }
   }, [data]);
 
   useEffect(() => {
     if (selectedColumns) {
       let selectedColumns_ = selectedColumns.map((el: any) => el.name);
-      let dataTable_ = [...data.data.slice(0, 1000)];
-      for (let i = 0; i < dataTable_.length; i++) {
-        let obj = { ...dataTable_[i] };
-        Object.keys(obj).forEach(function (key: string) {
-          if (!selectedColumns_.includes(key)) {
-            delete obj[key];
-          }
-        });
-        dataTable_[i] = obj;
-      }
-      setDataTable(dataTable_);
       setColumns(selectedColumns_);
-      let filters_ = { ...filters };
-      for (let i = 0; i < selectedColumns_.length; i++) {
-        filters_[selectedColumns_[i]] = {
-          value: null,
-          matchMode: FilterMatchMode.CONTAINS,
-        };
-      }
-      setFilters(filters_);
     }
   }, [selectedColumns]);
 
   const onGlobalFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    let _filters = { ...filters };
-    if ("value" in _filters["global"]) {
-      _filters["global"].value = value;
-    }
-    setFilters(_filters);
     setGlobalFilterValue(value);
+    if (globalTimerId !== null) {
+      clearTimeout(globalTimerId);
+    }
+    globalTimerId = setTimeout(() => {
+      let filters_ = { ...lazyState.filters };
+      if ("value" in filters_["global"]) {
+        filters_["global"].value = value;
+      }
+      setlazyState({ ...lazyState, filters: filters_ });
+      globalTimerId = null;
+    }, waitingTime);
   };
 
   const exportPdf = () => {
@@ -144,8 +214,81 @@ export default function BasicFilterDemo({ data }: any) {
 
   const header = renderHeader();
 
+  const onPage = (event: any) => {
+    setlazyState(event);
+  };
+
+  const onSort = (event: any) => {
+    event["first"] = 0;
+    setlazyState(event);
+  };
+
+  const onFilter = (event: any) => {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+    }
+    timerId = setTimeout(() => {
+      event["first"] = 0;
+      setlazyState(event);
+      timerId = null;
+    }, waitingTime);
+  };
+
+  useEffect(() => {
+    let order = data.variables.order;
+    if (lazyState.sortField && lazyState.sortOrder) {
+      order = JSON.stringify([
+        {
+          column: lazyState.sortField,
+          order: lazyState.sortOrder > 0 ? "ASC" : "DESC",
+        },
+      ]);
+    }
+    let columns_like = null;
+    let counter_filters = null;
+    let filters = Object.keys(lazyState.filters)
+      .map(function (el) {
+        return { ...lazyState.filters[el], key: el };
+      })
+      .filter((el_) => el_.value);
+    if (filters.length > 0) {
+      if (filters.map((el) => el.key).includes("global")) {
+        let global_value = filters.find((el) => el.key === "global")?.value;
+        columns_like = selectedColumns
+          .map((el_: any) => el_.name)
+          .map(function (el: string) {
+            return el + "-" + global_value + "-contains";
+          });
+        columns_like.push("global");
+        counter_filters = JSON.stringify(columns_like);
+        columns_like = JSON.stringify(columns_like);
+      } else {
+        columns_like = filters.map(function (el) {
+          return el.key + "-" + el.value + "-" + el.matchMode;
+        });
+        counter_filters = JSON.stringify(columns_like);
+        columns_like = JSON.stringify(columns_like);
+      }
+    }
+    let variables = {
+      limit: lazyState.rows,
+      offset: lazyState.first,
+      order: order,
+      columns_like: columns_like,
+      filters: counter_filters,
+    };
+    if (
+      data.data !== null &&
+      JSON.stringify(Object.values(data.variables)) !==
+        JSON.stringify(Object.values(variables))
+    ) {
+      setLoading(true);
+      requestUpdate(data["id"], data["query"], variables, lazyState.filters);
+    }
+  }, [lazyState]);
+
   return (
-    <div>
+    <div className="CCTable__container">
       <div className="CCTable__columns-selector">
         <MultiSelect
           value={selectedColumns}
@@ -163,32 +306,24 @@ export default function BasicFilterDemo({ data }: any) {
       <DataTable
         ref={dt}
         value={dataTable}
-        size="small"
-        paginator
-        rows={10}
-        dataKey="id"
-        filters={filters}
+        lazy
         filterDisplay="row"
+        dataKey={idTable}
+        paginator
+        first={lazyState.first}
+        rows={lazyState.rows}
+        totalRecords={totalRecords}
+        onPage={onPage}
+        onSort={onSort}
+        sortField={lazyState.sortField || ""}
+        sortOrder={
+          lazyState.sortOrder === null
+            ? null
+            : (lazyState.sortOrder as 0 | 1 | -1)
+        }
+        onFilter={onFilter}
+        filters={lazyState.filters}
         loading={loading}
-        globalFilterFields={[
-          "specialty",
-          "variaty",
-          "boxes",
-          "weight",
-          "exporter",
-          "region_destiny",
-          "port_destiny",
-          "country_destiny",
-          "receiver",
-          "ship",
-          "ship_type",
-          "week_number",
-          "date",
-          "port_of_shipment",
-          "arrive_date",
-          "origin_code",
-          "condition",
-        ]}
         header={header}
         emptyMessage="No data found."
         resizableColumns

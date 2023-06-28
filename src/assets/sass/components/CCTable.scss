@@ -1,7 +1,14 @@
 .CCTable {
+    &__container {
+        display: inline-block;
+    }
     &__columns-selector {
         width: 100%;
         display: flex;
-        justify-content: end;
+        justify-content: start;
     }
+}
+
+.p-datatable {
+    max-width: 80vw !important;
 }

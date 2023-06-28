@@ -9,7 +9,7 @@ function NavBar() {
 
   return (
     <div className="NavBar">
-      <div className="card flex justify-content-center">
+      <div>
         <Sidebar
           className="NavBar__openBar"
           visible={visible}
