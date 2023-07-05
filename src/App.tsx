@@ -16,6 +16,9 @@ function App() {
   const [userName, setUserName] = useState("");
   const [userLastName, setUserLastName] = useState("");
   const [userImage, setUserImage] = useState("");
+  const [userConfiguration, setUserConfiguration] = useState(null);
+  const [currentSection, setCurrentSection] = useState("");
+  const [currentPage, setCurrentPage] = useState("");
 
   useEffect(() => {
     onLoad();
@@ -47,12 +50,20 @@ function App() {
           value={{
             isAuthenticated,
             setIsAuthenticated,
+            userToken,
+            setUserToken,
             userName,
             setUserName,
             userLastName,
             setUserLastName,
             userImage,
             setUserImage,
+            userConfiguration,
+            setUserConfiguration,
+            currentSection,
+            setCurrentSection,
+            currentPage,
+            setCurrentPage,
           }}
         >
           <ManagementRoutes />

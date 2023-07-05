@@ -22,7 +22,6 @@ Amplify.configure({
   aws_appsync_graphqlEndpoint: config.graphqlEndpoint,
   aws_appsync_region: config.graphqlRegion,
   aws_appsync_authenticationType: config.graphqlAuthenticationType,
-  aws_appsync_apiKey: config.graphqlApiKey,
   Storage: {
     AWSS3: {
       bucket: config.s3.BUCKET,

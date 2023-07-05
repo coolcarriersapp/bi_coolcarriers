@@ -1,5 +1,4 @@
 .NavBar{
-
     &__openBar {
         background: linear-gradient(90deg, #2C9FDA 0.91%, #3154A1 77.81%) !important;
         width: 280px !important;
@@ -8,12 +7,12 @@
             width: 100%;
             align-items: center;
             justify-content: space-around;
-
             font-family: 'Roboto';
             font-weight: 700;
             font-size: 20px;
             line-height: 23px;
             color: #FFFFFF;
+            margin-bottom: 50px;
         }
     }
     &__closeBar {
@@ -30,6 +29,34 @@
         &:hover{
             width: 100px !important;
             transition: width 0.5s;
+        }
+    }
+    &__sections-container{
+        text-align: center;
+        font-family: 'Roboto';
+        font-weight: 400;
+        font-size: 20px;
+        line-height: 23px;
+        color: #FFFFFF;
+        &--active {
+            label {
+                font-weight: 700;
+            }
+        }
+    }
+    &__pages-container{
+        margin-top: 20px;
+    }
+    &__page-container {
+        margin-top: 10px;
+        label {
+            font-weight: 400;
+            cursor: pointer;
+        }
+        &--active {
+            label {
+                font-weight: 700;
+            }
         }
     }
 }

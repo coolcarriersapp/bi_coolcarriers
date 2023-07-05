@@ -69,7 +69,7 @@ export default function BasicFilterDemo({ data, requestUpdate }: any) {
         let columns_ = data.columns.map(function (el: string) {
           return { name: el, code: el };
         });
-        if (selectedColumns === null) {
+        if (selectedColumns === null || totalColumns !== columns_) {
           setSelectedColumns(columns_);
           setColumns(data.columns);
         } else {
